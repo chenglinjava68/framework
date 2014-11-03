@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:cache="http://www.springframework.org/schema/cache"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans   
+        http://www.springframework.org/schema/beans/spring-beans-3.2.xsd  
+        http://www.springframework.org/schema/context   
+        http://www.springframework.org/schema/context/spring-context-3.2.xsd  
+        http://www.springframework.org/schema/tx   
+        http://www.springframework.org/schema/tx/spring-tx-3.1.xsd  
+        http://www.springframework.org/schema/aop  
+        http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+        http://www.springframework.org/schema/cache  
+        http://www.springframework.org/schema/cache/spring-cache-3.2.xsd">
+
+	<!-- 使用annotation 自动注册bean, 并保证@Required、@Autowired的属性被注入 -->
+	<context:component-scan base-package="com.sendi">
+		<context:exclude-filter type="annotation"
+			expression="org.springframework.stereotype.Controller" />
+	</context:component-scan>
+
+	<context:property-placeholder
+		ignore-unresolvable="true" local-override="true"
+		location="classpath*:/application.properties" />
+
+	<!-- 数据源配置, 使用DBCP数据库连接池 -->
+	<bean id="dataSourceA" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<!-- Connection Info -->
+		<property name="driverClassName" value="${datasourceA.driverClassName}" />
+		<property name="url" value="${datasourceA.url}" />
+		<property name="username" value="${datasourceA.username}" />
+		<property name="password" value="${datasourceA.password}" />
+
+		<!-- Connection Pooling Info -->
+		<property name="maxActive" value="20" />
+		<property name="initialSize" value="1" />
+		<property name="maxWait" value="60000" /> <!--60秒 -->
+		<property name="maxIdle" value="15" />
+		<property name="minIdle" value="5" />
+		<property name="removeAbandoned" value="true" />
+		<property name="removeAbandonedTimeout" value="10" /> <!--10分钟 -->
+		<property name="logAbandoned" value="true" />
+		<property name="validationQuery" value="${datasourceA.validationQuery}" />
+		<property name="testWhileIdle" value="true" />
+	</bean>
+	
+	<bean id="dataSource" class="com.sendi.system.extend.datasource.DynamicDataSource" >
+		<!-- 通过key-value的形式来关联数据源 -->
+		<property name="targetDataSources">
+			<map>
+				<entry value-ref="dataSourceA" key="dataSourceA"></entry>
+				<!-- <entry value-ref="dataSourceB" key="dataSourceB"></entry>  -->
+			</map>
+		</property>
+		<property name="defaultTargetDataSource" ref="dataSourceA" />
+	</bean>
+
+	<!-- Hibernate4 SessionFactory -->
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="packagesToScan" value="com.sendi" />
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.format_sql">false</prop>
+				<prop key="hibernate.current_session_context_class">org.springframework.orm.hibernate4.SpringSessionContext
+				</prop>
+				<prop key="hibernate.hbm2ddl.auto">none</prop>
+			</props>
+		</property>
+	</bean>
+
+	<!-- Spring Jdbc Template -->
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<!-- 事务管理器 -->
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+		<property name="dataSource" ref="dataSource"></property><!--加 上这一行，支持hibernate和springJdbcTempldate同时支持事务 -->
+	</bean>
+
+	<!-- 方式二为：使用@Transactional标注 -->
+	<!-- Annotation Driver: 使用注释事务管理 -->
+	<!-- 这里配置后将使用注释事务方式，不用再在这个XML文件中配置事务代理对象了 -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+	
+	<!--preloadBeanconfig config 系统启动主要靠这个bean初始化加载资源-->
+	<bean id="preloadBeanconfig" class="com.sendi.system.bean.PreloadBeanconfig"
+		scope="singleton" init-method="init">
+	</bean>
+	
+	<!-- Spring 加入Ehcache缓存配置开始 -->
+	<!-- 启用缓存注解功能，这个是必须的，否则注解不会生效，另外，该注解一定要声明在spring主配置文件中才会生效 -->
+	<cache:annotation-driven cache-manager="cacheManager" />
+	<bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager" p:cache-manager-ref="ehcache" />
+	<bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean" 
+			p:config-location="classpath:ehcache.xml" p:shared="true"/>
+</beans>
