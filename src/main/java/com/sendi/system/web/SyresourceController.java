@@ -62,7 +62,6 @@ public class SyresourceController extends BaseController {
 		List<Map<String,Object>> datas = syresourceService.queryByRoleId(roleid);
 		
 		String responseText = toJSONArraytring(datas);
-		System.out.println(responseText);
 		writeResponseText(responseText, response);
 	}
 	

@@ -40,7 +40,7 @@
 	<repositories>
 		<repository>
 			<id>liujinghua</id>
-			<url>http://localhost:8088/nexus/content/groups/public/</url>
+			<url>http://192.168.20.234:8088/nexus/content/groups/public/</url>
 		</repository>
 	</repositories>
 	

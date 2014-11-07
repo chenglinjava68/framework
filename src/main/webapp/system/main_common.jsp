@@ -13,6 +13,41 @@ var mainMenu;
 var mainTabs;
 
 $(function() {
+	//解锁登录处理函数
+	var loginFun = function() {
+		if ($('#loginDialog form').form('validate')) {
+			$('#loginBtn').linkbutton('disable');
+			$.post(fullpath + '/loginController.do?doLoginAgain', $('#loginDialog form').serialize(), function(result) {
+				if (result.success) {
+					$('#loginDialog').dialog('close');
+				} else {
+					$.messager.alert('提示', result.msg, 'error', function() {
+						$('#loginDialog form :input:eq(1)').focus();
+					});
+				}
+				$('#loginBtn').linkbutton('enable');
+			}, 'json');
+			
+		}
+	};
+	
+	//解锁登录窗口打开后隐藏
+	$('#loginDialog').show().dialog({
+		modal : true,
+		closable : false,
+		iconCls : 'ext-icon-lock_open',
+		buttons : [ {
+			id : 'loginBtn',
+			text : '登录',
+			iconCls : "icon-ok",
+			handler : function() {
+				loginFun();
+			}
+		} ],
+		onOpen : function() {
+			
+		}
+	}).dialog('close');
 	mainMenu = $('#mainMenu').tree({
 		url : fullpath + '/syresourceController.do?getMainMenu',
 		lines : true,
@@ -135,4 +170,18 @@ $(function() {
 		</div>
 	</div>
 	<div data-options="region:'south',href:'${ctx}/system/south.jsp',border:false" style="height: 30px; overflow: hidden;"></div>
+	<div id="loginDialog" title="解锁登录" style="display: none;">
+		<form method="post" class="form" onsubmit="return false;">
+			<table class="table">
+				<tr>
+					<th width="50">登录名</th>
+					<td>${userid}<input name="loginname" readonly="readonly" type="hidden" value="${userid}" /></td>
+				</tr>
+				<tr>
+					<th>密码</th>
+					<td><input name="password" type="password" class="easyui-validatebox" data-options="required:true" /></td>
+				</tr>
+			</table>
+		</form>
+	</div>
 </body>

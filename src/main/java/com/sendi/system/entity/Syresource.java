@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -12,6 +13,7 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Table(name = "SYRESOURCE")
@@ -40,7 +42,9 @@ public class Syresource implements java.io.Serializable {
 	}
 
 	@Id
-	@Column(name = "ID", unique = true, nullable = false, length = 36)
+	@GeneratedValue(generator = "paymentableGenerator")
+	@GenericGenerator(name = "paymentableGenerator", strategy = "uuid")
+	@Column(name ="ID",nullable=false,length=36)
 	public String getId() {
 		if (!StringUtils.isBlank(this.id)) {
 			return this.id;

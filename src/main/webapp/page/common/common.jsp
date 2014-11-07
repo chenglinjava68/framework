@@ -37,7 +37,7 @@
         	Cookie cookie = (Cookie) cookieMap.get("easyuiTheme");
         	easyuiTheme = cookie.getValue();
         }
-        String uiVersion = "easyui1.4";//版本目录文件夹
+        String uiVersion = "easyui1.3.6";//版本目录文件夹
  %>
 <link id="easyuiTheme" rel="stylesheet" type="text/css" href="${ctx}/<%=uiVersion%>/themes/<%=easyuiTheme%>/easyui.css">
 <link rel="stylesheet" type="text/css" href="${ctx}/<%=uiVersion%>/themes/icon.css">

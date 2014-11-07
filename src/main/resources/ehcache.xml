@@ -21,10 +21,16 @@
        clearOnFlush：内存数量最大时是否清除。
     -->
     
-    <cache name="dictCache" maxElementsInMemory="100000" overflowToDisk="true"
+    <cache name="onlinecache" maxElementsInMemory="100000" overflowToDisk="true"
 		eternal="false" memoryStoreEvictionPolicy="LRU" maxElementsOnDisk="10000000"
-		diskExpiryThreadIntervalSeconds="600" timeToIdleSeconds="3600"
-		timeToLiveSeconds="100000" diskPersistent="false">
+		diskExpiryThreadIntervalSeconds="600" timeToIdleSeconds="60"
+		timeToLiveSeconds="60" diskPersistent="false">
+	</cache>
+    
+    <cache name="dictcache" maxElementsInMemory="100000" overflowToDisk="true"
+		eternal="false" memoryStoreEvictionPolicy="LRU" maxElementsOnDisk="10000000"
+		diskExpiryThreadIntervalSeconds="600" timeToIdleSeconds="60"
+		timeToLiveSeconds="60" diskPersistent="false">
 	</cache>
 	
 	<defaultCache maxElementsInMemory="10000" overflowToDisk="true"

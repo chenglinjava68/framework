@@ -46,7 +46,7 @@ public class Page<T> implements Serializable{
 	}
 
 	public String formToJson(){
-		String json = "{'total':"+this.total+",'rows':"+this.toJSONArraytring(rows)+"}";
+		String json = "{\"total\":"+this.total+",\"rows\":"+this.toJSONArraytring(rows)+"}";
 		return json;
 	}
 	

@@ -80,6 +80,8 @@ public abstract class BaseController {
 	        int starti = getStart(request);
 	        int limiti = getLimit(request);
 	        
+	        starti = starti*limiti;//easyui和extjs的传参不一样，特殊处理
+	        
 	        logger.info("list data size:"+array.size());
 	        if((starti+limiti+1)>array.size())
 	        {
@@ -92,7 +94,8 @@ public abstract class BaseController {
 	        }
 	        String jsons = toJSONArraytring(pagedata);
 	       String res="{\"total\":"+array.size()+",\"rows\":"+jsons+"}";
-	       //logger.debug(res);
+	       
+	       //logger.info(res);
 	       response.getWriter().print(res);
 		}
 		catch (Exception e) {

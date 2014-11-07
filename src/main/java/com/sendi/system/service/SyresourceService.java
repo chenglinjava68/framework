@@ -31,10 +31,9 @@ public class SyresourceService extends CommonService<Syresource> {
 	public List<Syresource> querySyresourceTreeGridDatas(String sysresource_id) {
 		String hql;
 		if (StringUtils.isEmpty(sysresource_id)) {
-			hql = "from Syresource where sysresource_id ='' or sysresource_id is null";
+			hql = "from Syresource where sysresource_id ='' or sysresource_id is null order by seq";
 		} else {
-			hql = "from Syresource where sysresource_id ='" + sysresource_id
-					+ "'";
+			hql = "from Syresource where sysresource_id ='" + sysresource_id + "' order by seq";
 		}
 		return findByQueryString(hql);
 	}
@@ -60,7 +59,7 @@ public class SyresourceService extends CommonService<Syresource> {
 
 	// 左侧树形菜单
 	public List<Map<String,Object>> getMainMenu(String roleid) {
-		String sql = "select a.* from syresource a,syrole_syresource b where a.id=b.syresource_id and a.syresourcetype_id='0' and b.syrole_id = '"+roleid+"'";
+		String sql = "select a.* from syresource a,syrole_syresource b where a.id=b.syresource_id and a.syresourcetype_id='0' and b.syrole_id = '"+roleid+"' order by seq ";
 		return jdbcTemplate.queryForList(sql);
 	}
 

@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,11 +13,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.sendi.system.bean.SysLogHelper;
-import com.sendi.system.constants.Globals;
 import com.sendi.system.entity.User;
 import com.sendi.system.service.AfterLoginService;
 import com.sendi.system.service.UserRoleService;
 import com.sendi.system.service.UserService;
+import com.sendi.system.util.Json;
 import com.sendi.system.util.common.DateUtil;
 
 /**
@@ -126,12 +127,43 @@ public class LoginController extends BaseController{
 		 return new ModelAndView("system/main_common");
 	}
 	
+	//这个方法用于锁定窗口后进行解锁
+	@RequestMapping(params = "doLoginAgain")
+	public void doLoginAgain(HttpServletRequest request, HttpServletResponse response, String loginname, String password) {
+		Json j = new Json();
+		//3、判断用户名密码
+		User u = userService.findByUserId(loginname);
+		System.out.println(u.getPassword()+":"+password);
+		if(!u.getPassword().equals(password)){
+			j.setSuccess(false);
+			j.setMsg("密码不正确");
+		}else{//成功检验
+			//6、登录成功，从数据库中查询出角色ID
+			String roleid = userRoleService.findRoleIdByUserId(u.getId());//加载出角角ID放入session
+			
+			//7、登录成功，将登录信息设置在session中
+			request.getSession().setAttribute(this.SESSION_USER_ID, u.getUserId()+"");
+			request.getSession().setAttribute(this.SESSION_USER_NAME, u.getUserName()+"");
+			request.getSession().setAttribute(this.SESSION_ROLE_ID, roleid+"");
+			request.getSession().setAttribute(this.SESSION_USER_ID_TABLEKEY, u.getId()+"");
+			
+			//8、登录成功后通过afterLoginService.doLoad方法做一系统事情
+			afterLoginService.setUserid(u.getUserId()+"");
+			afterLoginService.setRoleid(roleid+"");
+			afterLoginService.setRequest(request);
+			afterLoginService.doLoad();
+		}
+		
+		writeResponseText(j.getJsonStr(), response);
+		
+	}
+	
 	/**
 	 * 登出
 	 */
 	@RequestMapping(params = "logout")
-	public ModelAndView logout(HttpServletRequest request) {
-		System.out.println("logout...............................");
+	public void logout(HttpServletRequest request,HttpServletResponse response) {
+		logger.info("logout...............................");
 		HttpSession hs = request.getSession();
 		if (hs.getAttribute("userid") != null) {
 			String userId = hs.getAttribute("userid").toString();
@@ -151,7 +183,8 @@ public class LoginController extends BaseController{
 				e.printStackTrace();
 			}
 		}
-		return new ModelAndView(LOGIN_);
+		Json j = new Json();
+		writeResponseText(j.getJsonStr(), response);
 	}
 
 	private String getIp(HttpServletRequest request) {
