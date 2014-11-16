@@ -5,13 +5,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.sendi.system.bean.Page;
+import com.sendi.system.util.AuthUtils;
 import com.sendi.system.util.UUIDGenerator;
 
 @Service
@@ -29,13 +35,18 @@ public class OnlineTableService extends CommonService {
 	private static final String ONLINE_ITEM = "online_item";
 	private static final String SEARCHFIELD_LIST = "searchfield_list";
 	private static final String DIC_CODE = "dic_code";
+	private static final String LIST_ENHANCE_JS = "list_enhance_js";
+	private static final String FORM_ENHANCE_JS = "form_enhance_js";
+	
+	@Autowired
+	private DicDataService dicDataService;
 	
 	//读取配置数据
 	//将缓存保存进andCache，并使用参数拼接，加上一个字符串(这里使用方法名称)作为缓存的key，不配置key，默认使用方法中的所有参数作为key
 	//@Cacheable(value = Globals.EhCacheName,key="#paraDesc + #paraName + 'sysConfigParaQuery'")
-	//@Cacheable(value = "onlinecache",key="'OnlineTableService.queryConfig' + #configId")
+	@Cacheable(value = "onlinecache",key="'OnlineTableService.queryConfig' + #configId")
 	public Map<String, Object> queryConfig(String configId){
-		logger.info("加载配置.....");
+		logger.info("重新加载配置.....");
 		if(StringUtils.isEmpty(configId)){
 			throw new RuntimeException("动态报表配置加载出错...");
 		}
@@ -46,7 +57,8 @@ public class OnlineTableService extends CommonService {
 		Map<String, Object> head_map = jdbcTemplate.queryForMap(sql);
 		configs.put(ONLINE_HEAD, head_map);//
 		
-		String itemSQL = "select * from online_item where headid = '"+configId+"'";
+		//加入排序功能
+		String itemSQL = "select * from online_item where headid = '"+configId+"' order by order_num";
 		//itemList
 		List<Map<String, Object>> item_list = jdbcTemplate.queryForList(itemSQL);
 		
@@ -60,6 +72,48 @@ public class OnlineTableService extends CommonService {
 		
 		configs.put(ONLINE_ITEM, item_list);
 		configs.put(SEARCHFIELD_LIST, searchfield_list);
+		
+		//5、
+		/*******************************************
+		 * 为了支持单表配置的查询按钮权限，在这里处理，权限查好后放在freemarker变量，前台根据此变量来判断用户是否有权限访问
+		 * 暂时支持新增、修改、删除、查看四种以后在这里扩展
+		 * 在资源管理中需要严格设置URL才有效，格式为：/configId!save,/configId!update,/configId!delete,/configId!view
+		 * 如：/4028b881499c7fe301499c8101dd0002!save表示online_head表的id为4028b881499c7fe301499c8101dd0002的配置数据的新增权限URL名称
+ 		 *******************************************
+		 */
+		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+		Map<String, Object> buttonOperAuth = new HashMap<String, Object>();
+		//新增权限
+		String saveAuth = AuthUtils.auth(request.getSession(), "/"+configId+"!save") ?"Y":"N";
+		//修改权限
+		String updateAuth = AuthUtils.auth(request.getSession(), "/"+configId+"!update") ?"Y":"N";
+		//删除权限
+		String deleteAuth = AuthUtils.auth(request.getSession(), "/"+configId+"!delete") ?"Y":"N";
+		String viewAuth = AuthUtils.auth(request.getSession(), "/"+configId+"!view") ?"Y":"N";
+		buttonOperAuth.put("save", saveAuth);
+		buttonOperAuth.put("update", updateAuth);
+		buttonOperAuth.put("delete", deleteAuth);
+		buttonOperAuth.put("view", viewAuth);
+		configs.put("buttonOperAuth", buttonOperAuth);
+		
+		
+		//列表和增改页面的增强JS
+		String enhance_sql = "select js_location,jscontent from online_head_enhance_js where headid='"+configId+"'";
+		List<Map<String, Object>> enhanceList = jdbcTemplate.queryForList(enhance_sql);
+		List<String> listEnhanceList = new ArrayList<String>();
+		List<String> formEnhanceList = new ArrayList<String>();
+		for (Map<String, Object> map : enhanceList) {
+			String js_location = String.valueOf(map.get("js_location"));
+			String jscontent = String.valueOf(map.get("jscontent"));
+			if("list".equals(js_location) && !StringUtils.isEmpty(jscontent)){
+				listEnhanceList.add(jscontent);
+			}
+			if("form".equals(js_location) && !StringUtils.isEmpty(jscontent)){
+				formEnhanceList.add(jscontent);
+			}
+		}
+		configs.put(LIST_ENHANCE_JS, listEnhanceList);
+		configs.put(FORM_ENHANCE_JS, formEnhanceList);
 		
 		return configs;
 	}
@@ -177,7 +231,7 @@ public class OnlineTableService extends CommonService {
 				//不需要处理字典
 				continue;
 			}else{
-				List<Map<String, Object>> dicDatas = queryDic(dict_code);
+				List<Map<String, Object>> dicDatas = dicDataService.queryDic(dict_code);
 				for(Map r:datas){
 					String value = String.valueOf(r.get(item.get(FIELDNAME)));
 					for(Map m:dicDatas){
@@ -191,19 +245,5 @@ public class OnlineTableService extends CommonService {
 				}
 			}
 		}
-	}
-	
-	/**
-	 * 查询数据字典
-	 * @param diccode 字典编码
-	 * @return
-	 */
-	//@Cacheable(value = "onlinecache",key="'OnlineTableService.queryDic' + #diccode")
-	public List<Map<String, Object>> queryDic(String dic_code) {
-		StringBuilder dicSql = new StringBuilder();
-		dicSql.append(" SELECT dic_key,dic_value FROM dicdata WHERE dic_code = '"+dic_code+"'");
-		System.out.println(dicSql);
-		List<Map<String, Object>> dicDatas = getDataList(dicSql.toString());
-		return dicDatas;
 	}
 }

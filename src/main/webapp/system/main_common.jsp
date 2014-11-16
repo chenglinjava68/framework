@@ -48,6 +48,35 @@ $(function() {
 			
 		}
 	}).dialog('close');
+	
+	//初始化时修改密码窗口打开后隐藏
+	$('#passwordDialog').show().dialog({
+		modal : true,
+		closable : true,
+		iconCls : 'ext-icon-lock_edit',
+		buttons : [ {
+			text : '修改',
+			handler : function() {
+				if ($('#passwordDialog form').form('validate')) {
+					$.post(fullpath + '/loginController.do?updateCurrentPwd', {
+						'oldPwd' : $('#oldPwd').val(),
+						'pwd' : $('#pwd').val()
+					}, function(result) {
+						if (result.success) {
+							$.messager.alert('提示', '密码修改成功！', 'info');
+							$('#passwordDialog').dialog('close');
+						}else{
+							$.messager.alert('提示',result.faile, 'info');
+						}
+					}, 'json');
+				}
+			}
+		} ],
+		onOpen : function() {
+			$('#passwordDialog form :input').val('');
+		}
+	}).dialog('close');
+	
 	mainMenu = $('#mainMenu').tree({
 		url : fullpath + '/syresourceController.do?getMainMenu',
 		lines : true,
@@ -146,13 +175,14 @@ $(function() {
 				var tab = mainTabs.tabs('getTab', index);
 				if (tab.panel('options').closable) {
 					mainTabs.tabs('close', index);
-					mainTabs.tabs('destroy', index);
-				} else {
+ 				} else {
 					$.messager.alert('提示', '[' + tab.panel('options').title + ']不可以被关闭！', 'error');
 				}
 			}
 		} ]
 	});
+	
+	$("#mainFramePage").attr("src","${ctx}${sendi_sys_config_para.sendi_system_overviewurl}");
 
 });
 </script>
@@ -164,22 +194,42 @@ $(function() {
 	</div>
 	<div data-options="region:'center'" style="overflow: hidden;">
 		<div id="mainTabs">
-			<div title="主页" data-options="iconCls:'ext-icon-heart'">
-				<iframe src="${ctx}/system/syUserList.jsp" allowTransparency="true" style="border: 0; width: 100%; height: 99%;" frameBorder="0"></iframe>
+			<div title="主页" data-options="iconCls:'ext-icon-image'">
+				<iframe id="mainFramePage" src="" allowTransparency="true" style="border: 0; width: 100%; height: 99%;" frameBorder="0"></iframe>
 			</div>
 		</div>
 	</div>
 	<div data-options="region:'south',href:'${ctx}/system/south.jsp',border:false" style="height: 30px; overflow: hidden;"></div>
+	
 	<div id="loginDialog" title="解锁登录" style="display: none;">
-		<form method="post" class="form" onsubmit="return false;">
+		<form method="post" class="form">
 			<table class="table">
 				<tr>
 					<th width="50">登录名</th>
 					<td>${userid}<input name="loginname" readonly="readonly" type="hidden" value="${userid}" /></td>
 				</tr>
 				<tr>
-					<th>密码</th>
+					<th>密码<font color="red">*</font></th>
 					<td><input name="password" type="password" class="easyui-validatebox" data-options="required:true" /></td>
+				</tr>
+			</table>
+		</form>
+	</div>
+	
+	<div id="passwordDialog" title="修改密码" style="display: none;">
+		<form method="post" class="form">
+			<table class="table">
+				<tr>
+					<th>旧密码<font color="red">*</font></th>
+					<td><input id="oldPwd" name="oldPwd" type="password" class="easyui-validatebox" data-options="required:true" /></td>
+				</tr>
+				<tr>
+					<th>新密码<font color="red">*</font></th>
+					<td><input id="pwd" name="pwd" type="password" class="easyui-validatebox" data-options="required:true" /></td>
+				</tr>
+				<tr>
+					<th>重复密码<font color="red">*</font></th>
+					<td><input type="password" class="easyui-validatebox" data-options="required:true,validType:'eqPwd[\'#pwd\']'" /></td>
 				</tr>
 			</table>
 		</form>

@@ -15,7 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "SYROLE")
+@Table(name = "syrole")
 public class Syrole implements java.io.Serializable {
 
 	private String id;

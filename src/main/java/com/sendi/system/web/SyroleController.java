@@ -1,6 +1,7 @@
 package com.sendi.system.web;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -14,7 +15,6 @@ import com.sendi.system.entity.Syrole;
 import com.sendi.system.service.SyroleService;
 import com.sendi.system.util.BeanUtils;
 import com.sendi.system.util.Json;
-import com.sendi.system.util.common.ContextHolderUtils;
 
 /**
  * 角色管理控制器
@@ -32,6 +32,9 @@ public class SyroleController extends BaseController {
 	 */
 	@RequestMapping(params = "queryAll")
 	public void queryAll(HttpServletRequest request,HttpServletResponse response,String name) {
+		
+		//System.out.println(request.getRequestURI());
+		
 		List<Syrole> datas = syroleService.queryAll(name);
 		writeJSONArray(datas, request, response);
 	}
@@ -111,5 +114,17 @@ public class SyroleController extends BaseController {
 			e.printStackTrace();
 		}
 		
+	}
+	
+	/**
+	 * 根据用户id查询用户的角色列表
+	 * @author devchao
+	 */
+	@RequestMapping(params = "queryRoleByUserId")
+	public void queryRoleByUserId(HttpServletRequest request,HttpServletResponse response,String userId){
+
+		List<Map<String,Object>> datas =syroleService.queryRoleListByUserId(userId);
+		String responseText = toJSONArraytring(datas);
+		this.writeResponseText(responseText, response);
 	}
 }

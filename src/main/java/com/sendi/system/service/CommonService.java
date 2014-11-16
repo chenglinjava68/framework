@@ -4,14 +4,10 @@ import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import net.sf.json.JSONObject;
-import net.sf.json.JsonConfig;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
@@ -33,8 +29,9 @@ import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.Assert;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.sendi.system.bean.Page;
-import com.sendi.system.util.common.JsonDateValueProcessor;
 
 /**
  * 
@@ -102,12 +99,36 @@ public class CommonService<T> {
 		dataMap.put("total",jdbcTemplate.queryForObject(countSQL, Integer.class));
 		dataMap.put("rows",datasList);
 		
-		JsonConfig jsonConfig = new JsonConfig();
-		jsonConfig.registerJsonValueProcessor(Date.class,new JsonDateValueProcessor());
-		JSONObject jsons = JSONObject.fromObject(dataMap,jsonConfig);
-		dataStr = jsons.toString();
+		dataStr = JSON.toJSONString(dataMap, 
+				SerializerFeature.WriteMapNullValue,
+				SerializerFeature.WriteNullStringAsEmpty,
+				SerializerFeature.WriteNullNumberAsZero,
+				SerializerFeature.WriteNullBooleanAsFalse,
+				SerializerFeature.WriteDateUseDateFormat);
+		
 		return dataStr;
 	}
+	
+	/**
+	 * 获取数据,带limit分页(截取到sql最后面的“from”，复杂的sql请注意使用)
+	 * @return
+	 */
+	public Page<Map<String,Object>> getPageData(String sql,String start,String limit){
+		String countSQL = "select count(*) from ("+sql+") t";
+		String dataSQL = sql + " limit "+(StringUtils.isBlank(start)?0:start)+","+(StringUtils.isBlank(limit)?15:limit) ;
+		
+		logger.info(countSQL);//
+		logger.info(dataSQL);
+		
+		List<Map<String,Object>> datasList = jdbcTemplate.queryForList(dataSQL);
+		
+		Page<Map<String,Object>> page = new Page<Map<String,Object>>();
+		page.setTotal(jdbcTemplate.queryForObject(countSQL, Integer.class));
+		page.setRows(datasList);
+		
+		return page;
+	}
+	
 	/**
 	 * @return
 	 */

@@ -65,10 +65,17 @@
 		if (endEditing()){
 			editIndex = 0;
 			grid.datagrid('insertRow',{index: editIndex,row: {
+				id : '',
+				fieldname : '',
+				fieldtitle : '',
 				fieldtype : 'text',
 				isquery : 'N',
 				isshow : 'Y',
-				is_exact_match : 'Y'
+				is_addupdate : 'Y',
+				is_exact_match : 'Y',
+				data_options : '',
+				dic_code : '',
+				order_num : ''
 			}});
 			$('#dg').datagrid('selectRow', editIndex).datagrid('beginEdit', editIndex);
 		}
@@ -95,38 +102,49 @@
 	
 	//读取数据库名称，然后尝试构造所有列
 	function addBatch(){
-		var rows = $('#dg').datagrid('getRows');//先将原先的所有行全删除
-		while (rows.length>0){
-			$('#dg').datagrid('deleteRow',0);
-			rows = $('#dg').datagrid('getRows');
-		}
-		//然后根据数据库表的字段，重新初始化
-		if (endEditing()){
-			editIndex = 0;
-			grid.datagrid('insertRow',{index: editIndex,row: {
-				fieldname : 'name',
-				fieldtitle : 'title',
-				fieldtype : 'text',
-				isquery : 'N',
-				isshow : 'Y',
-				is_exact_match : 'Y'
-			}});
-			$('#dg').datagrid('selectRow', editIndex).datagrid('beginEdit', editIndex);
-		}
-		
-		if (endEditing()){
-			editIndex = 0;
-			grid.datagrid('insertRow',{index: editIndex,row: {
-				fieldname : 'name',
-				fieldtitle : 'title',
-				fieldtype : 'text',
-				isquery : 'N',
-				isshow : 'Y',
-				is_exact_match : 'Y'
-			}});
-			$('#dg').datagrid('selectRow', editIndex).datagrid('beginEdit', editIndex);
-		}
-		
+		$.post(
+			fullpath + '/onlineTableConfigController.do?loadTableInfo', {
+				tableName : $(':input[name="tablename"]').val()
+			}, 
+			function(result) {
+				if (!result.success) {
+					$.messager.show({title : '警告',msg : result.msg});
+				} else {//信息加载成功
+					
+					reject();//取消编辑
+					
+					var rows = $('#dg').datagrid('getRows');//先将原先的所有行全删除
+					while(rows.length>0){
+						$('#dg').datagrid('deleteRow',0);
+						rows = $('#dg').datagrid('getRows');//最后一行也要清掉
+					}
+					
+					var fields = result.fields;
+					
+					for(var i=0;i<fields.length;i++){//然后根据数据库表的字段，重新初始化
+						if (endEditing()){
+							editIndex = 0;
+							grid.datagrid('insertRow',{index: editIndex,row: {
+								id : '',
+								fieldname : fields[i].fieldname,
+								fieldtitle : fields[i].fieldname,
+								fieldtype : 'text',
+								isquery : 'N',
+								isshow : 'Y',
+								is_addupdate : 'Y',
+								is_exact_match : 'Y',
+								data_options : '',
+								dic_code : '',
+								order_num : ''
+							}});
+						}
+					}
+					
+					editIndex = 0;
+					$('#dg').datagrid('selectRow', editIndex).datagrid('beginEdit', editIndex);
+					
+				}
+		}, 'json');
 	}
 	
 	//取消编辑
@@ -149,7 +167,7 @@
 		          {field:'id',title:'id',width:30,hidden:true},    
 		          {field:'fieldname',title:'字段名',width:40,editor:{type:'validatebox',options:{required:true}}},    
 		          {field:'fieldtitle',title:'字段中文',width:40,editor:{type:'validatebox',options:{required:true}}},
-		          {field:'fieldtype',title:'类型',width:40,editor:'validatebox',
+		          {field:'fieldtype',title:'类型',width:20,editor:'validatebox',
 		        	  editor:{
 		        	  	type:'combobox',
 		        	  	options:{
@@ -163,7 +181,7 @@
 		        	  	}
 		        	  }  
 		          },
-		          {field:'isquery',title:'是否查询',width:40,
+		          {field:'isquery',title:'是否查询',width:30,
 		        	  formatter : function(value,row){
 		        		  if(value == "Y") return "是";
 		        		  return "否";
@@ -178,7 +196,7 @@
 		        	  	}
 		        	  }
 		          },
-		          {field:'isshow',title:'是否显示',width:40,editor:'validatebox',
+		          {field:'isshow',title:'是否列表显示',width:30,editor:'validatebox',
 		        		  formatter : function(value,row){
 			        		  if(value == "Y") return "是";
 			        		  return "否";
@@ -193,7 +211,22 @@
 			        	  	}
 			        	  }
 			      },
-		          {field:'is_exact_match',title:'是否模糊查询',width:40,editor:'validatebox',
+			      {field:'is_addupdate',title:'是否录入显示',width:30,editor:'validatebox',
+		        		  formatter : function(value,row){
+			        		  if(value == "Y") return "是";
+			        		  return "否";
+			        	  },
+			        	  editor:{
+			        	  	type:'combobox',
+			        	  	options:{
+				        	  	valueField:'dic_key',
+				        	  	textField:'dic_value',
+				        	  	data : [{"dic_key":"Y","dic_value":"是"},{"dic_key":"N","dic_value":"否"}],
+				        	  	required:true
+			        	  	}
+			        	  }
+			      },
+		          {field:'is_exact_match',title:'是否模糊查询',width:30,editor:'validatebox',
 				    	  formatter : function(value,row){
 			        		  if(value == "Y") return "是";
 			        		  return "否";
@@ -209,7 +242,8 @@
 			        	  	}
 			        	  }  
 		          },
-		          {field:'data_options',title:'data_options',width:40,editor:'validatebox'},
+		          {field:'order_num',title:'排序',width:15,editor:{type:'numberbox',options:{required:true}}},
+		          {field:'data_options',title:'data_options',width:50,editor:'validatebox'},
 		          {field:'dic_code',title:'字典代码',width:40,editor:'validatebox'}
 			]], 
 			toolbar : '#toolbar',
@@ -235,7 +269,7 @@
 			<tr>
 				<input id="id" name="id"  type="hidden" value="<%=id%>" />
 				<th>主表名称</th>	<td><input name="tablename" class="easyui-validatebox" data-options="required:true" />
-					<img class="iconImg ext-icon-zoom" onclick="addBatch();" title="初始化字段信息" /></td>
+					<img class="iconImg ext-icon-page_white_put" onclick="addBatch();" title="初始化字段信息" /></td>
 				<th>显示标题</th>	<td><input name="title" class="easyui-validatebox" data-options="required:true" /></td>
 			</tr>
 		</table>

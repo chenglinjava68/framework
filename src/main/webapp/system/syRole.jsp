@@ -57,15 +57,15 @@
 			<legend>角色基本信息</legend>
 			<table class="table" style="width: 100%;">
 				<tr>
-					<th>角色名称</th>
+					<th>角色名称<font color="red">*</font></th>
 					<td>
 						<input id="ida" name="id"  type="hidden" value="<%=id%>" />
-						<input name="name" class="easyui-textbox" style="width:390px" data-options="required:true" />
+						<input name="name" class="easyui-validatebox" style="width:352px" data-options="required:true" />
 					</td>
 				</tr>
 				<tr>
-					<th>序号</th>
-					<td><input name="seq" class="easyui-numberbox" data-options="required:true,min:1,max:10000" style="width:390px"/></td>
+					<th>序号<font color="red">*</font></th>
+					<td><input name="seq" class="easyui-numberbox" data-options="required:true,min:1,max:10000" style="width:357px"/></td>
 				</tr>
 				<tr>
 					<th>资源描述</th>

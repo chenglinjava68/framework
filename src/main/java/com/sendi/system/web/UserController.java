@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.sendi.system.entity.User;
 import com.sendi.system.service.UserRoleService;
 import com.sendi.system.service.UserService;
-import com.sendi.system.util.Json;
 
 @Controller
 @RequestMapping("/userController")
@@ -219,5 +218,16 @@ public class UserController extends BaseController {
 		String json = userRoleService.queryUserByRoleId(roleid, ""+starti, ""+limiti);
 		
 		writeResponseText(json, response);	
+	}
+	
+	/**
+	 * 根据用户id获取用户信息
+	 * @author devchao
+	 */
+	@RequestMapping(params = "queryUserByUserId")
+	public void queryUserByUserId(HttpServletRequest request,
+			HttpServletResponse response, String userid ) {
+		User user=userService.findByUserId(userid);
+		writeResponseText(toJSONString(user), response);
 	}
 }

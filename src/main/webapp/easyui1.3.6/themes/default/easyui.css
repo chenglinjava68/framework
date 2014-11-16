@@ -2294,11 +2294,11 @@
   color: #000000;
 }
 .validatebox-invalid {
-  background-image: url('images/validatebox_warning.png');
+  /**background-image: url('images/validatebox_warning.png');
   background-repeat: no-repeat;
   background-position: right center;
-  border-color: #ffa8a8;
-  background-color: #fff3f3;
+  border-color: #ffa8a8;*/
+  background-color: #FFCCCC;/*#fff3f3修改样式liujinghua****/
   color: #000;
 }
 .tooltip {

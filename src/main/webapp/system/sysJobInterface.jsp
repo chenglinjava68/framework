@@ -68,7 +68,7 @@
 					<td><input  name="interfacecalss" class="easyui-validatebox" data-options="required:true"/></td>
 					<th>任务类型</th>
 					<td>
-						<select id="jobtype" class="easyui-combobox" name="jobtype" style="width:142px;" data-options="required:true" onSelect="alert()">   
+						<select id="jobtype" class="easyui-combobox" name="jobtype" style="width:128px;" data-options="required:true" onSelect="alert()">   
 						    <option value="c">复杂任务</option>   
 						    <option value="s">简单任务</option>   
 						</select>
@@ -85,7 +85,7 @@
 					<td><input name="jobRepeatcount" class="easyui-validatebox" /></td>
 					<th>是否激活</th>
 					<td>
-						<select id="isactive" class="easyui-combobox" name="isactive" style="width:142px;" data-options="required:true">   
+						<select id="isactive" class="easyui-combobox" name="isactive" style="width:128px;" data-options="required:true">   
 						    <option value="off">off</option>   
 						    <option value="on">on</option>   
 						</select>

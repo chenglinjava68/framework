@@ -108,4 +108,22 @@ public class OnlineTableConfigController extends BaseController{
 		}
 	}
 	
+	//加载表字段信息
+	@RequestMapping(params = "loadTableInfo")
+	public void loadTableInfo(String tableName ,HttpServletRequest request,HttpServletResponse response){
+		Json j = new Json();
+		try {
+			
+			if(StringUtils.isEmpty(tableName)) throw new RuntimeException("表名不能为空");
+			
+			List<Map<String,Object>> datas = onlineTableConfigService.loadTableInfo(tableName);
+			String jsonArray = toJSONArraytring(datas);
+			this.writeResponseText("{\"success\":true,\"fields\":"+jsonArray+"}", response);
+		} catch (Exception e) {
+			j.setSuccess(false);
+			j.setMsg(e.getMessage());
+			this.writeResponseText(j.getJsonStr(), response);
+			e.printStackTrace();
+		}
+	}
 }

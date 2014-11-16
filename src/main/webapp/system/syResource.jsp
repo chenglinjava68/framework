@@ -45,7 +45,7 @@
 	var showIcons = function() {
 		var dialog = parent.sy.modalDialog({
 			title : '浏览小图标',
-			url : fullpath + '/easyui1.4/style/icons.jsp',
+			url : fullpath + '/<%=uiVersion%>/style/icons.jsp',
 			buttons : [ {
 				text : '确定',
 				iconCls : "icon-ok",
@@ -97,7 +97,7 @@
 				<tr>
 					<th>编号</th>
 					<td><input name="id" value="<%=id%>" readonly="readonly" /></td>
-					<th>资源名称</th>
+					<th>资源名称<font color="red">*</font></th>
 					<td><input name="name" class="easyui-validatebox"
 						data-options="required:true" /></td>
 				</tr>
@@ -131,7 +131,7 @@
 					<th>顺序</th>
 					<td><input name="seq" class="easyui-numberspinner"
 						data-options="required:true,min:0,max:100000,editable:false"
-						style="width: 155px;" value="100" /></td>
+						style="width: 155px;" value="10" /></td>
 					<th>目标</th>
 					<td><input name="target" /></td>
 				</tr>

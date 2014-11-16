@@ -28,7 +28,7 @@ document.getElementById("randImage").src = "system/image.jsp?"+Math.random();
 												&nbsp;
 											</td>
 											<td width="95%" height="58">
-												<img src="page/image/logo.jpg" width="300" height="58" />
+												<img src="page/image/logo.png" width="300" height="58" />
 											</td>
 										</tr>
 										<tr>

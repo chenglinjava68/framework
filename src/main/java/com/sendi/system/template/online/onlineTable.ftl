@@ -43,6 +43,10 @@
 			loadRemote();
 		}
 	});
+	<#list form_enhance_js as jscontent>
+		${jscontent}
+	</#list>
+	
 </script>
 <body>
 	<form method="post" id="fm">
@@ -58,15 +62,17 @@
 						<#if x_index%2 == 0>
 						<tr>
 						</#if>
-							<th>${x.fieldtitle}</th>
-							<#if x['fieldtype']=="datetime"><!--时间-->
-							<td><input name="${x.fieldname}" class="easyui-datetimebox"	data-options="${x.data_options}" /></td>
-							<#elseif x['fieldtype']=="date"><!--日期-->
-							<td><input name="${x.fieldname}" class="easyui-datebox"	data-options="${x.data_options}" /></td>
-							<#elseif x['fieldtype']=="combobox"><!--下拉选择框-->
-							<td><input id="${x.fieldname}" class="easyui-combobox" name="${x.fieldname}" data-options="valueField:'dic_key',textField:'dic_value',url:'${fullpath}/onlineTableController.do?queryDic&dic_code=${x.dic_code}',${x.data_options}" /></td>
-							<#else><!--默认文本框-->
-							<td><input name="${x.fieldname}" class="easyui-validatebox"	data-options="${x.data_options}" /></td>
+							<#if x['is_addupdate']=="Y">
+								<th>${x.fieldtitle}<#if x.data_options?index_of('required:true')!=-1 ><font color="red">*</font></th></#if>
+								<#if x['fieldtype']=="datetime"><!--时间-->
+								<td><input name="${x.fieldname}" class="easyui-datetimebox"	data-options='${x.data_options}' /></td>
+								<#elseif x['fieldtype']=="date"><!--日期-->
+								<td><input name="${x.fieldname}" class="easyui-datebox"	data-options='${x.data_options}' /></td>
+								<#elseif x['fieldtype']=="combobox"><!--下拉选择框-->
+								<td><input id="${x.fieldname}" class="easyui-combobox" name="${x.fieldname}" data-options='valueField:"dic_key",textField:"dic_value",url:"${fullpath}/onlineTableController.do?queryDic&dic_code=${x.dic_code}",${x.data_options}' /></td>
+								<#else><!--默认文本框-->
+								<td><input name="${x.fieldname}" class="easyui-validatebox"	data-options='${x.data_options}' /></td>
+								</#if>
 							</#if>
 						<#if x_index%2 != 0>
 						</tr>

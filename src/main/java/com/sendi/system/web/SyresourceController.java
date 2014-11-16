@@ -197,6 +197,31 @@ public class SyresourceController extends BaseController {
 			this.writeResponseText(j.getJsonStr(), response);
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * 根据角色id查询resource，用于显示用户的功能权限。
+	 * @author devchao
+	 */
+	@RequestMapping(params = "queryResourceByRoleId")
+	public void queryResourceByRoleId(HttpServletRequest request,HttpServletResponse response) {
 		
+		String roleId=(String)request.getSession().getAttribute(this.SESSION_ROLE_ID);
+		List<Syresource> datas = syresourceService.queryResourceByRoleId(roleId);
+		List<Tree> tree = new ArrayList<Tree>();
+		for (Syresource resource : datas) {
+			Tree node = new Tree();
+			BeanUtils.copyNotNullProperties(resource, node);
+			node.setText(resource.getName());
+			node.setState("open");
+			node.setPid(resource.getSysresource_id());
+			Map<String, String> attributes = new HashMap<String, String>();
+			attributes.put("url", resource.getUrl());
+			attributes.put("target", resource.getTarget());
+			node.setAttributes(attributes);
+			tree.add(node);
+		}
+		String responseText = toJSONArraytring(tree);
+		writeResponseText(responseText, response);
 	}
 }

@@ -201,11 +201,10 @@ $.extend($.fn.combogrid.defaults, {
 
 /**
  * 扩展validatebox，添加新的验证功能
- * 
- * @author 孙宇
- * 
+ * @author liujinghua
  * @requires jQuery,EasyUI
  */
+/**************************************************************/
 $.extend($.fn.validatebox.defaults.rules, {
 	eqPwd : {/* 验证两次密码是否一致功能 */
 		validator : function(value, param) {
@@ -214,6 +213,25 @@ $.extend($.fn.validatebox.defaults.rules, {
 		message : '密码不一致！'
 	}
 });
+$.extend($.fn.validatebox.defaults.rules, {
+	mobile: {/**手机号码*/    
+        validator: function(value, param){  
+        	var mobile = /^(((13[0-9]{1})|(15[0-9]{1}))+\d{8})$/;
+        	return mobile.test(value); 
+        },    
+        message: '手机号码格式不正确'   
+    }
+});
+$.extend($.fn.validatebox.defaults.rules, {
+	ipAddress: {/**IP地址验证*/    
+        validator: function(value, param){  
+        	var ip = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+        	return ip.test(value); 
+        },    
+        message: 'IP地址填写不正确'   
+    }
+});
+/**************************************************************/
 
 /**
  * 扩展tree和combotree，使其支持平滑数据格式

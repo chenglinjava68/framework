@@ -1,5 +1,7 @@
 package com.sendi.system.service;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -107,5 +109,37 @@ public class SyresourceService extends CommonService<Syresource> {
 		String sql = "select count(*) from syresource where SYRESOURCE_ID = '"+id+"'";
 		int count = jdbcTemplate.queryForObject(sql, Integer.class);
 		return count == 0 ? true : false;
+	}
+	
+	/**
+	 * 根据角色ID查询其具有的resource
+	 * @param roleId
+	 * @return
+	 * @author devchao
+	 */
+	public List<Syresource> queryResourceByRoleId(String roleId){
+		
+		String sql= "select t2.* from syrole_syresource t1,syresource t2 " 
+				+ " where t1.SYRESOURCE_ID=t2.ID and t1.SYROLE_ID='" 
+				+ roleId + "'";
+		
+		logger.info("sql="+sql);
+		List<Map<String,Object>> mapList= jdbcTemplate.queryForList(sql);
+		Syresource syresource=null;
+		List<Syresource> resList=new ArrayList<Syresource>();
+		for (Map<String, Object> map : mapList) {
+			syresource=new Syresource();
+			syresource.setId((String) map.get("ID"));
+			syresource.setName((String) map.get("NAME"));
+			syresource.setIconCls((String) map.get("ICONCLS"));
+			syresource.setSysresource_id((String) map.get("SYRESOURCE_ID"));
+			syresource.setSeq((Integer) map.get("SEQ"));
+			syresource.setTarget((String) map.get("TARGET"));
+			syresource.setUrl((String) map.get("URL"));
+			syresource.setSysresourcetype_id((String) map.get("SYRESOURCETYPE_ID"));
+			syresource.setDescription((String) map.get("DESCRIPTION"));
+			resList.add(syresource);
+		}
+		return resList;
 	}
 }

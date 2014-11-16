@@ -37,15 +37,13 @@
 		var row = $('#dg').datagrid('getSelections');
 		if(row.length==0) {
 			$.messager.show({
-				title : '警告',
-				msg : '需要选中一行进行操作'
+				title : '警告',msg : '需要选中一行进行操作'
 			});
 			return ;
 		}
 		if(row.length>1) {
 			$.messager.show({
-				title : '警告',
-				msg : '修改操作只能选择一行'
+				title : '警告',msg : '修改操作只能选择一行'
 			});
 			return ;
 		}
@@ -60,6 +58,35 @@
 					dialog.find('iframe').get(0).contentWindow.submitForm(dialog, grid,parent.$);
 				}
 			},{
+				text : '取消',
+				iconCls : "ext-icon-cross",
+				handler : function() {
+					dialog.dialog('close');
+				}
+			} ]
+		});
+	};
+	
+	//查看
+	var viewFun = function() {
+		var row = $('#dg').datagrid('getSelections');
+		if(row.length==0) {
+			$.messager.show({
+				title : '警告',msg : '需要选中一行进行操作'
+			});
+			return ;
+		}
+		if(row.length>1) {
+			$.messager.show({
+				title : '警告',msg : '查看操作只能选择一行'
+			});
+			return ;
+		}
+		
+		var dialog = parent.sy.modalDialog({
+			title : '查看',
+			url : pageUrl+'&id=' + row[0].id+ '&load=view',
+			buttons : [{
 				text : '取消',
 				iconCls : "ext-icon-cross",
 				handler : function() {
@@ -131,6 +158,7 @@
 			singleSelect : false,
 			fit : true,
 			border : false,
+			//idField : 'id',
 			url : fullpath + '/onlineTableController.do?queryAll&configId=${configId}',
 			columns:[[ 
 			<!----------------------------------组装列表字段开始---------------------------------------->   
@@ -151,15 +179,22 @@
 				parent.$.messager.progress('close');
 			}
 		});
+		
 	});
+		
+	<#list list_enhance_js as jscontent>
+		${jscontent}
+	</#list>
 </script>
 <body class="easyui-layout" data-options="fit:true,border:false">
 	<div data-options="region:'center',fit:true,border:false">
 		<table id="dg"/>
 		<div id="toolbar">
-			<a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addFun()">增加</a>
-			<a href="#"	class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editFun()">修改</a>
-			<a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="delFun()">删除</a>
+			<!--增加按钮权限控制-->
+			<#if buttonOperAuth.save=="Y"><a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addFun()">增加</a></#if>
+			<#if buttonOperAuth.update=="Y"><a href="#"	class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editFun()">修改</a></#if>
+			<#if buttonOperAuth.delete=="Y"><a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="delFun()">删除</a></#if>
+			<#if buttonOperAuth.view=="Y"><a href="#" class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="viewFun()">查看</a></#if>
 			<!----------------------------------组装查询条件开始---------------------------------------->
 			<#if (searchfield_list?size>0)>
 			<#list searchfield_list  as x> 

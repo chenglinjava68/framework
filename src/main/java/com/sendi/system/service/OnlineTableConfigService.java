@@ -1,5 +1,12 @@
 package com.sendi.system.service;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -63,7 +70,7 @@ public class OnlineTableConfigService extends CommonService {
 		JSONArray arrays = JSONArray.fromObject(online_items);
 		for(int i=0;i<arrays.size();i++){
 			JSONObject j = arrays.getJSONObject(i);
-			String sql3 = "insert into online_item(id,headid,fieldname,fieldtitle,fieldtype,isquery,isshow,is_exact_match,data_options,dic_code) ";
+			String sql3 = "insert into online_item(id,headid,fieldname,fieldtitle,fieldtype,isquery,isshow,is_addupdate,is_exact_match,order_num,data_options,dic_code) ";
 			sql3 += "values (" ;
 			sql3 += "'"+UUIDGenerator.generate()+"',";//id
 			sql3 += "'"+StringUtils.trimToEmpty(id)+"',";//headid
@@ -72,12 +79,46 @@ public class OnlineTableConfigService extends CommonService {
 			sql3 += "'"+StringUtils.trimToEmpty(j.getString("fieldtype"))+"',";
 			sql3 += "'"+StringUtils.trimToEmpty(j.getString("isquery"))+"',";
 			sql3 += "'"+StringUtils.trimToEmpty(j.getString("isshow"))+"',";
+			sql3 += "'"+StringUtils.trimToEmpty(j.getString("is_addupdate"))+"',";
 			sql3 += "'"+StringUtils.trimToEmpty(j.getString("is_exact_match"))+"',";
+			sql3 += "'"+StringUtils.trimToEmpty(j.getString("order_num"))+"',";
 			sql3 += "'"+StringUtils.trimToEmpty(j.getString("data_options"))+"',";
 			sql3 += "'"+StringUtils.trimToEmpty(j.getString("dic_code"))+"'";
 			sql3 +=	")";
 			jdbcTemplate.execute(sql3);
 		}
+	}
+	
+	//根据表名查询出所有的字段名称和类型，给配置页面初始化使用
+	public List<Map<String,Object>> loadTableInfo(String tableName){
+		String crgSql = "select * from "+tableName;
+		
+		List<Map<String,Object>> tableInfoMap = new ArrayList<Map<String,Object>>();
+		
+		Connection conn = null;
+		Statement stat = null;
+		ResultSet rs = null;
+		try {
+			conn = getConnection();
+			stat = conn.createStatement();
+			rs = stat.executeQuery(crgSql);
+			ResultSetMetaData rsmd = rs.getMetaData();
+			int count = rsmd.getColumnCount();
+			for (int i = 1; i <= count; i++) {
+				
+				if(StringUtils.equalsIgnoreCase("id", rsmd.getColumnName(i))) continue;//ID字段不要
+				
+				Map<String,Object> m =  new HashMap<String,Object>();
+				m.put("fieldname", rsmd.getColumnName(i));
+				tableInfoMap.add(m);
+			}
+		} catch (Exception e) {
+			throw new RuntimeException("表名不存在");
+		} finally {
+			close(conn, stat, rs);
+		}
+		
+		return tableInfoMap;
 	}
 	
 	//删除
@@ -95,5 +136,33 @@ public class OnlineTableConfigService extends CommonService {
 		
 		jdbcTemplate.execute(sql);
 		jdbcTemplate.execute(sql2);
+	}
+	
+	private void close(Connection conn, Statement stat, ResultSet rs) {
+		try {
+			if (conn != null) {
+				conn.close();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (stat != null) {
+					stat.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} finally {
+				try {
+					if (rs != null) {
+						rs.close();
+					}
+				} catch (SQLException e) {
+					e.printStackTrace();
+				} finally {
+
+				}
+			}
+		}
 	}
 }

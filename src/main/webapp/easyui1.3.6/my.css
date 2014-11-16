@@ -49,3 +49,7 @@ h2 {
 .fitem input {
 	width: 160px;
 }
+
+.hidden {
+	display:none;
+}

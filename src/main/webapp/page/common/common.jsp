@@ -64,5 +64,13 @@
   
   var sy = sy || {};
   sy.pixel_0 = '${ctx}/<%=uiVersion%>/style/images/pixel_0.gif';//0像素的背景，一般用于占位
-  
+</script>
+
+<script type="text/javascript">
+	//如果页面是详细查看页面，无效化所有表单元素，只能进行查看
+	$(function(){
+		if(location.href.indexOf("load=view")!=-1){
+			$(":input").attr("disabled","true");
+		}
+	});
 </script>

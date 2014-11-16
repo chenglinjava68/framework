@@ -1,6 +1,6 @@
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../config/ehcache.xsd">
 
-    <diskStore path="java.io.tmpdir"/>
+    <diskStore path="/usr/local/tomcat/webapps/tyzlk/Ehcache"/>
 
     <!--
     Mandatory Default Cache configuration. These settings will be applied to caches

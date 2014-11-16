@@ -44,6 +44,8 @@ public class LoginController extends BaseController{
 	@Autowired
 	private UserService userService;
 	
+	private String loginName;
+	
 	/**
 	 * 登录
 	 */
@@ -53,7 +55,7 @@ public class LoginController extends BaseController{
 		String login_rand = request.getParameter("login_rand");
 		String login_username = request.getParameter("login_username");
 		String login_password = request.getParameter("login_password");
-
+		loginName =login_username;
 		try {
 			
 			//1、验证码校验
@@ -202,4 +204,27 @@ public class LoginController extends BaseController{
 		return ip;
 	}
 
+	
+	/*
+	 * 
+	 * 修改密码
+	 */
+	@RequestMapping(params = "updateCurrentPwd")
+	public void updateCurrentPwd(HttpServletRequest request,HttpServletResponse response) {
+		String oldPwd=request.getParameter("oldPwd");
+		String pwd = request.getParameter("pwd"); 
+		Json j = new Json();
+		try {
+			
+			userService.excuteModifyUserPassword(this.getCurrentUserId(request.getSession()), oldPwd, pwd, 222);
+			this.writeResponseText(j.getJsonStr(), response);
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			String msg = e.getMessage();
+			this.writeResponseText(msg, response);
+		}
+		
+		
+	}
 }

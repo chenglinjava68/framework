@@ -104,6 +104,37 @@ sy.stringToList = function(value) {
 };
 
 /**
+ * 根据列表ID查询列表标题和字段的信息并返回
+ * @author 邹山
+ * @param {} id 列表ID
+ * @return {} 数组 arr[1] 列表所有字段名,以','拼接为字符串  arr[2] 列表所有表头,以','拼接为字符串
+ */
+sy.readColumnTitles = function(id){
+	var options = $("#"+id).datagrid('options');
+		
+	var fields = $("#"+id).datagrid('getColumnFields');
+	var fieldstr = '';
+	var titlestr = '';
+	$.each(fields,function(_index,field){
+		var columnOption = $("#"+id).datagrid('getColumnOption',field);
+		if(columnOption.excel=='Y'){
+			fieldstr += columnOption.field+',';
+			titlestr += columnOption.title+',';
+		}
+	});
+	if(fieldstr.indexOf(',')!=-1){
+		fieldstr = fieldstr.substring(0,fieldstr.lastIndexOf(','));
+	}
+	if(titlestr.indexOf(',')!=-1){
+		titlestr = titlestr.substring(0,titlestr.lastIndexOf(','));
+	}
+	var info = [];
+	info.push(fieldstr);
+	info.push(titlestr);
+	return info;
+};
+
+/**
  * JSON对象转换成String
  * 
  * @param o

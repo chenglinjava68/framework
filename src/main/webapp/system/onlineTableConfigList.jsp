@@ -101,6 +101,12 @@
 		});
 	};
 	
+	//预览效果
+	function viewFun(id){
+		var url = fullpath + "/onlineTableController.do?goListPage&configId="+id;
+		window.open(url);
+	}
+	
 	//查询按钮
 	function queryAll(){
 		$('#dg').datagrid('load', {    
@@ -122,7 +128,14 @@
 			columns:[[    
 		          {field:'id',title:'id',width:30,checkbox:true},    
 		          {field:'tablename',title:'数据库表名',width:40},    
-		          {field:'title',title:'显示标题',width:50}
+		          {field:'title',title:'显示标题',width:50},
+		          {field :'action',title :'配置地址',width:200,formatter:function(value, row){
+						return "/onlineTableController.do?goListPage&configId="+row.id;
+					}
+	          	  },{field :'view',title :'操作',width:60,formatter:function(value, row){
+        				return sy.formatString('<img class="iconImg ext-icon-link" title="预览效果" onclick="viewFun(\'{0}\');"/>', row.id);
+					}
+		          }
 			]], 
 			toolbar : '#toolbar',
 			onBeforeLoad : function(row, param) {

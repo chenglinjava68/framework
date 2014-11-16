@@ -1,7 +1,5 @@
 package com.sendi.system.web;
 
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.sendi.system.bean.Page;
 import com.sendi.system.constants.Globals;
+import com.sendi.system.service.DicDataService;
 import com.sendi.system.service.OnlineTableService;
 import com.sendi.system.util.Json;
 import com.sendi.system.util.common.FreemarkerHelper;
@@ -35,6 +34,9 @@ public class OnlineTableController extends BaseController{
 	
 	@Autowired
 	private OnlineTableService onlineTableService;
+	
+	@Autowired
+	private DicDataService dicDataService;
 	
 	/**
 	 * 进入单表配置主页面
@@ -212,26 +214,8 @@ public class OnlineTableController extends BaseController{
 	 */
 	@RequestMapping(params = "queryDic")
 	public void queryDic(String dic_code,HttpServletRequest request,HttpServletResponse response){
-			List<Map<String, Object>> data = onlineTableService.queryDic(dic_code);
+			List<Map<String, Object>> data = dicDataService.queryDic(dic_code);
 			
 			writeResponseText(toJSONArraytring(data), response);
-	}
-	
-	/**
-	 * 封装request请求参数到Map里
-	 * @param request
-	 * @return
-	 */
-	private Map<String, String> paramsToMap(HttpServletRequest request) {
-		Map<String, String> params = new HashMap<String, String>();
-		// 得到枚举类型的参数名称，参数名称若有重复的只能得到第一个
-		Enumeration em = request.getParameterNames();
-		while (em.hasMoreElements()) {
-			String paramName = (String) em.nextElement();
-			String paramValue = request.getParameter(paramName);
-			// 形成键值对应的map
-			params.put(paramName, paramValue);
-		}
-		return params;
 	}
 }

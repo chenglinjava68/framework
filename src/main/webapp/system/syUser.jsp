@@ -73,23 +73,23 @@
 			<table class="table" style="width: 100%;">
 				<tr>
 					<input id="ida" name="id"  type="hidden" value="<%=id%>" />
-					<th>账号名</th>
-					<td><input name="userId" class="easyui-textbox"	data-options="required:true" /></td>
-					<th>用户名</th>
-					<td><input name="userName" class="easyui-textbox" data-options="required:true" /></td>
+					<th>账号名<font color="red">*</font></th>
+					<td><input name="userId" class="easyui-validatebox"	data-options="required:true" /></td>
+					<th>用户名<font color="red">*</font></th>
+					<td><input name="userName" class="easyui-validatebox" data-options="required:true" /></td>
 				</tr>
 				<tr>
-					<th>密码</th>
-					<td><input  name="password" class="easyui-textbox" type="password" style="width:142px;" data-options="required:true" id="password" /></td>
-					<th>确认密码</th>
-					<td><input name="passwordc" class="easyui-textbox" type="password" style="width:142px;" data-options="required:true" validType="eqPwd['#password']"/></td>
+					<th>密码<font color="red">*</font></th>
+					<td><input  name="password" class="easyui-validatebox" style="width:121px;" type="password" data-options="required:true" id="password" /></td>
+					<th>确认密码<font color="red">*</font></th>
+					<td><input name="passwordc" class="easyui-validatebox" style="width:121px;" type="password" data-options="required:true" validType="eqPwd['#password']"/></td>
 				</tr>
 				<tr>
 					<th>密码有效期(天)</th>
-					<td><input name="pwdvalicity" class="easyui-textbox"/></td>
+					<td><input name="pwdvalicity" class="easyui-validatebox"/></td>
 					<th>是否提示修改密码</th>
 					<td>
-						<select id="istip" class="easyui-combobox" name="istip" style="width:142px;">   
+						<select id="istip" class="easyui-combobox" name="istip" style="width:127px;">   
 						    <option value="on">是</option>   
 						    <option value="off">否</option>   
 						</select>
@@ -99,18 +99,18 @@
 					<th>最大允许登录数</th>
 					<td><input name="maxlogincount" class="easyui-textbox" /></td>
 					<th>连接ip</th>
-					<td><input name="ip" class="easyui-textbox"/></td>
+					<td><input name="ip" class="easyui-validatebox"/></td>
 				</tr>
 				<tr>
 					<th>最大并发连接数</th>
-					<td><input name="max_connect" class="easyui-textbox"/></td>
-					<th>所属角色</th>
+					<td><input name="max_connect" class="easyui-validatebox"/></td>
+					<th>所属角色<font color="red">*</font></th>
 					<td><input id="roleid" name="roleid" value=""></td>
 				</tr>
 				<tr>
 					<th>是否共享</th>
 					<td>
-						<select id="is_share" class="easyui-combobox" name="is_share" style="width:142px;">   
+						<select id="is_share" class="easyui-combobox" name="is_share" style="width:127px;">   
 						    <option value="y">是</option>   
 						    <option value="n">否</option>   
 						</select>

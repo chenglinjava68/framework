@@ -1,16 +1,13 @@
 package com.sendi.system.tag;
 
-import java.util.List;
-import java.util.Map;
-
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.TagSupport;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.sendi.system.constants.Globals;
 import com.sendi.system.service.SyresourceService;
+import com.sendi.system.util.AuthUtils;
 
 /**
  * 功能权限用的标签
@@ -38,17 +35,8 @@ public class AuthTag extends TagSupport {
 			throw new RuntimeException("标签属性resoureUrl不能为空字符串");
 		}
 		
-		//2、//从session中取出登录用户的功能权限列表
-		List<Map<String,Object>> userButtonOperations = (List<Map<String,Object>>)pageContext.getSession().getAttribute(Globals.UserButtonOperations);
-		
 		//3、检查是否有按钮权限
-		boolean authFlag = false;
-		for(Map<String,Object> m : userButtonOperations){
-			if(StringUtils.equals(resoureUrl, (String)m.get("url"))){
-				authFlag  = true;
-				break;
-			}
-		}
+		boolean authFlag = AuthUtils.auth(pageContext.getSession(), resoureUrl);
 		
 		//没有权限直接略过标签内部
 		if(!authFlag){

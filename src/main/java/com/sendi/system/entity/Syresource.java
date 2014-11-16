@@ -16,7 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "SYRESOURCE")
+@Table(name = "syresource")
 public class Syresource implements java.io.Serializable {
 	private String id;
 	private Date createdatetime;

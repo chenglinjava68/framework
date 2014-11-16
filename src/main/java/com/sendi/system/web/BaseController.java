@@ -2,21 +2,20 @@ package com.sendi.system.web;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.JsonConfig;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sendi.system.util.common.JsonDateValueProcessor;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.sendi.system.util.common.ObjectSorter;
 
 /**
@@ -80,7 +79,7 @@ public abstract class BaseController {
 	        int starti = getStart(request);
 	        int limiti = getLimit(request);
 	        
-	        starti = starti*limiti;//easyui和extjs的传参不一样，特殊处理
+	        //starti = starti*limiti;//easyui和extjs的传参不一样，特殊处理
 	        
 	        logger.info("list data size:"+array.size());
 	        if((starti+limiti+1)>array.size())
@@ -106,7 +105,10 @@ public abstract class BaseController {
 	
 	public int getStart(HttpServletRequest request){
 		String start = request.getParameter(START)==null?"0":request.getParameter(START);
-		int starti=(Integer.parseInt(start)-1)==-1?0:(Integer.parseInt(start)-1);
+		
+		int pageSize = request.getParameter(LIMIT)==null?99999999:Integer.parseInt(request.getParameter(LIMIT));
+		
+		int starti=(Integer.parseInt(start)-1)==-1?0:(Integer.parseInt(start)-1)*pageSize;
 		return starti;
 	}
 	
@@ -132,15 +134,111 @@ public abstract class BaseController {
     }
     
     public String toJSONString(Object o ){
-		JsonConfig jsonConfig = new JsonConfig();
+    	return JSON.toJSONString(o, 
+				SerializerFeature.WriteMapNullValue,
+				SerializerFeature.WriteNullStringAsEmpty,
+				SerializerFeature.WriteNullNumberAsZero,
+				SerializerFeature.WriteNullBooleanAsFalse,
+				SerializerFeature.WriteDateUseDateFormat);
+    	
+		/*JsonConfig jsonConfig = new JsonConfig();
 		jsonConfig.registerJsonValueProcessor(Date.class,new JsonDateValueProcessor());
-		return JSONObject.fromObject(o, jsonConfig).toString();
+		return JSONObject.fromObject(o, jsonConfig).toString();*/
 	}
 	
 	public String toJSONArraytring(Object o ){
-		JsonConfig jsonConfig = new JsonConfig();
+		return JSON.toJSONString(o, 
+				SerializerFeature.WriteMapNullValue,
+				SerializerFeature.WriteNullStringAsEmpty,
+				SerializerFeature.WriteNullNumberAsZero,
+				SerializerFeature.WriteNullBooleanAsFalse,
+				SerializerFeature.WriteDateUseDateFormat);
+		/*JsonConfig jsonConfig = new JsonConfig();
 		jsonConfig.registerJsonValueProcessor(Date.class,new JsonDateValueProcessor());
-		return JSONArray.fromObject(o, jsonConfig).toString();
+		return JSONArray.fromObject(o, jsonConfig).toString();*/
 	}
 	
+	/**
+	 * 封装request请求参数到Map里
+	 * @param request
+	 * @return
+	 */
+	protected Map<String, String> paramsToMap(HttpServletRequest request) {
+		Map<String, String> params = new HashMap<String, String>();
+		// 得到枚举类型的参数名称，参数名称若有重复的只能得到第一个
+		Enumeration em = request.getParameterNames();
+		while (em.hasMoreElements()) {
+			String paramName = (String) em.nextElement();
+			String paramValue = request.getParameter(paramName);
+			// 形成键值对应的map
+			params.put(paramName, paramValue);
+		}
+		return params;
+	}
+	
+	
+	/************************************************************************
+	 * 以下代码不再需要，已由FileUpDwnUtil工具类的相同名称的方法替代,liujinghua 20141112
+	 * ********************************************************************
+	//获取上传文件的全路径
+	protected String getFileFullName(String basename) {
+		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+		String filename = FilenameUtils.concat(DateFormatUtils.format(new Date(), "yyyyMMdd"), basename);
+		String filefullname = FilenameUtils.concat(request.getSession().getServletContext().getRealPath(Globals.UPLOAD),filename);
+		return filefullname;
+	}
+	
+	//获取上传文件的全路径
+	protected String getFileAbsoluteName(String subPathName) {
+		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+		String filefullname = FilenameUtils.concat(request.getSession().getServletContext().getRealPath(Globals.UPLOAD),subPathName);
+		return filefullname;
+	}************************************************************************/
+	
+	/*******************************************************************************************
+	 * 
+	 * @param response 
+	 * @param subFilePath 文件存储位置后半段路径, 存在数据库里的. /20141111/test.doc
+	 * @param realname 文件的真实名, NULL表示用文件的存储名
+	 
+	protected void writeFile(HttpServletResponse response,String subFilePath,String realname){
+		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+		String filefullname = FilenameUtils.concat(request.getSession().getServletContext().getRealPath(Globals.UPLOAD),subFilePath);
+		response.setContentType("application/msword;chartset=utf-8");
+		InputStream is = null;
+		OutputStream os = null;
+		try {
+			String filename = new String(realname.getBytes("gb2312"), "ISO-8859-1");
+			response.setHeader("Content-disposition", "attachment;filename=" + filename);
+
+			is = new FileInputStream(filefullname);
+			os = response.getOutputStream();
+			int len = 0;
+			byte[] buf = new byte[1024];
+			while ((len = is.read(buf)) != -1) {
+				os.write(buf, 0, len);
+			}
+			os.flush();
+			os.close();
+			is.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally{
+			try {
+				if(is!=null){
+					is.close();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally{
+				try {
+					if(os!=null){
+						os.close();
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}***************************************************************************************************************/
 }

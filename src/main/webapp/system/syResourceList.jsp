@@ -143,12 +143,13 @@
 										width : '80',
 										title : '排序',
 										field : 'seq',
-										hidden : true
+										hidden : false
 									},
 									{
 										width : '80',
 										title : '目标',
-										field : 'target'
+										field : 'target',
+										hidden : true
 									},
 									{
 										title : '操作',
