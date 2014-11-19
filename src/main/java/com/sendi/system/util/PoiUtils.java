@@ -63,7 +63,7 @@ public class PoiUtils {
 				XSSFCell cell = row.createCell(j);
 				cell.setCellType(XSSFCell.CELL_TYPE_STRING);
 				cell.setCellStyle(contentStyle);
-				String cellvalue=  String.valueOf(map.get(fieldArray[j]));
+				String cellvalue=  String.valueOf(map.get(fieldArray[j])==null?"":map.get(fieldArray[j]));
 				
 				cell.setCellValue(!StringUtils.isEmpty(cellvalue)?cellvalue:"");
 			}

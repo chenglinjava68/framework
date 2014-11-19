@@ -149,6 +149,30 @@
 		});
 	}
 	
+	//导出按钮
+	function exportFun(){
+		var paramstr = '';
+		<#if (searchfield_list?size>0)>
+			<#list searchfield_list  as x> 
+				<#if x['fieldtype']=="datetime"><!--时间-->
+				var ${x['fieldname']} = $('#search_${x['fieldname']}').datetimebox('getValue');
+				<#elseif x['fieldtype']=="date"><!--日期-->
+				var ${x['fieldname']} = $('#search_${x['fieldname']}').datebox('getValue');
+				<#elseif x['fieldtype']=="combobox"><!--下拉选择框-->
+				var ${x['fieldname']} = $('#search_${x['fieldname']}').combobox('getValue');
+				<#else><!--默认文本-->
+				var ${x['fieldname']} = $('#search_${x['fieldname']}').val();
+				</#if>
+				paramstr += '&${x['fieldname']}='+encodeURI(${x['fieldname']});
+			</#list>
+		</#if>
+		var infos = sy.readColumnTitles('dg');
+		var exportUrl = fullpath + '/onlineTableController.do?export&configId=${configId}'
+									+ paramstr
+									+'&fields='+encodeURI(infos[0])
+									+'&titles='+encodeURI(infos[1]);
+		window.open(encodeURI(exportUrl));
+	}
 	$(function() {
 		grid = $('#dg').datagrid({
 			title : '${online_head.title}列表',
@@ -209,6 +233,7 @@
 				</#if>
 			</#list>
 			<a href="#" class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="queryInterfaceFun()">查询</a>
+			<a href="#" class="easyui-linkbutton" iconCls="ext-icon-page_go" plain="true" onclick="exportFun()">导出</a>
 			</#if>
 			<!----------------------------------组装查询条件结束---------------------------------------->
 		</div>

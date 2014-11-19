@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.sendi.system.entity.OnlineCgReportHead;
 import com.sendi.system.entity.OnlineCgReportItem;
 import com.sendi.system.service.OnlineCgReportConfigService;
+import com.sendi.system.util.Json;
 
 @Controller
 @RequestMapping("/onlineCgReportConfigController")
@@ -42,8 +43,15 @@ public class OnlineCgReportConfigController extends BaseController{
 	@RequestMapping(params = "saveItems")
 	public void saveItems(HttpServletRequest request,
 			HttpServletResponse response){
-		service.saveItems(request);
-		writeResponseText("'保存成功'", response);
+		Json j = new Json();
+		try {
+			service.saveItems(request);
+			writeResponseText(j.getJsonStr(), response);
+		} catch (Exception e) {
+			j.setSuccess(false);
+			this.writeResponseText(j.getJsonStr(), response);
+			e.printStackTrace();
+		}
 	}
 	
 	@RequestMapping(params = "showItemsByHeadId")
@@ -61,15 +69,30 @@ public class OnlineCgReportConfigController extends BaseController{
 	@RequestMapping(params = "updateReportConfig")
 	public void updateReportConfig(HttpServletRequest request,
 			HttpServletResponse response){
+		Json j = new Json();
+		try {
 		service.updateReportConfig(request);
-		writeResponseText("'修改成功'", response);
+//		writeResponseText("'修改成功'", response);
+		this.writeResponseText(j.getJsonStr(), response);
+	} catch (Exception e) {
+		j.setSuccess(false);
+		this.writeResponseText(j.getJsonStr(), response);
+		e.printStackTrace();
+	}
 	}
 	
 	@RequestMapping(params = "deleteJformHead")
 	public void deleteJformHead(HttpServletRequest request,
 			HttpServletResponse response){
-		service.deleteJformHeads(request.getParameter("ids"));
-		writeResponseText("'删除成功'", response);
+		Json j = new Json();
+		try {
+			service.deleteJformHeads(request.getParameter("ids"));
+			writeResponseText(j.getJsonStr(), response);
+		} catch (Exception e) {
+			j.setSuccess(false);
+			this.writeResponseText(j.getJsonStr(), response);
+			e.printStackTrace();
+		}
 	}
 	
 	/**

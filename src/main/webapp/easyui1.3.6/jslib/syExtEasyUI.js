@@ -216,7 +216,9 @@ $.extend($.fn.validatebox.defaults.rules, {
 $.extend($.fn.validatebox.defaults.rules, {
 	mobile: {/**手机号码*/    
         validator: function(value, param){  
-        	var mobile = /^(((13[0-9]{1})|(15[0-9]{1}))+\d{8})$/;
+        	/*var mobile = /^(((13[0-9]{1})|(15[0-9]{1}))+\d{8})$/;*/
+        	var mobile = /^(((13[0-9]{1})|14[57]|(15[0-3,5-9]{1})|17[6-8]|(18[0-9]{1}))+\d{8})$/;
+        	//console.log(mobile.test(value));
         	return mobile.test(value); 
         },    
         message: '手机号码格式不正确'   

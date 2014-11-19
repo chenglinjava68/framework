@@ -28,7 +28,7 @@
 				}
 				var url = fullpath + '/onlineCgReportConfigController.do?saveItems';
 				if ($(':input[name="id"]').val().length > 0) {//如果ID不为空则表示修改操作，需要加载数据
-					var url = fullpath + '/onlineCgReportConfigController.do?updateReportConfig';
+					url = fullpath + '/onlineCgReportConfigController.do?updateReportConfig';
 				}
 				$.post(
 						url, {
@@ -37,7 +37,7 @@
 						item_description : $(':input[name="description"]').val(),
 						item_sql : $(':input[name="sql"]').val(),
 						item_name : $(':input[name="name"]').val(),
-						item_ischart : $(':input[name="ischart"]').val(),
+						item_ischart : $(':input[name="ischart"]:checked').val()=="Y"?"Y":"N",
 						item_array : JSON.stringify(rows)	
 					}, 
 					function(result) {
@@ -462,22 +462,22 @@
 				<table style="width: 100%;" data-options="border:false">
 					<tr>
 						<input id="id" name="id" type="hidden" value="<%=id%>" />
-						<th>编码</th>
+						<th>编码<font color="red">*</font></th>
 						<td colspan="1">
 							<input name="coding" class="easyui-validatebox"	data-options="required:true" /> 
 						</td>
-						<th>名称</th>
+						<th>名称<font color="red">*</font></th>
 						<td>
 							<input name="name" class="easyui-validatebox" data-options="required:true" />
 						</td>
 					</tr>
 					<tr>
-						<th>查询数据SQL</th>
+						<th>查询数据SQL<font color="red">*</font></th>
 						<td>
 							<textarea rows="3" cols="20" name="sql" class="easyui-validatebox"	data-options="required:true"></textarea>
 							<img class="iconImg ext-icon-page_white_put" onclick="analyzSql();" title="SQL解析" />
 						</td>
-						<th>描述</th>
+						<th>描述<font color="red">*</font></th>
 						<td>
 							<input name="description" class="easyui-validatebox" data-options="required:true" />
 						</td>

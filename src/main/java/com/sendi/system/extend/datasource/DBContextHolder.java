@@ -1,8 +1,8 @@
 package com.sendi.system.extend.datasource;
 
 public class DBContextHolder{
-	public static final String DATA_SOURCE_A = "dataSourceA";
-	public static final String DATA_SOURCE_B = "dataSourceB";
+	public static final String DATA_SOURCE_A = "datasourceA";
+	//public static final String DATA_SOURCE_B = "datasourceB";
 	
 	private static final ThreadLocal<String> contextHolder = new ThreadLocal<String>();
 	

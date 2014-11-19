@@ -166,6 +166,12 @@
 		});
 	}
 	
+	//预览效果
+	function viewFun(id){
+		var url = fullpath + "/onlineCgReportController.do?list&configId="+id;
+		window.open(url);
+	}
+	
 	//查询按钮
 	function queryAll(){
 		$('#dg').datagrid('load', {    
@@ -197,7 +203,8 @@
 		          },
 		          {field :'action',title :'操作',width:200,formatter:function(value, row){
 						return '[<a href="#" onclick="delFun()" class="delete-reportconfig-link">删除</a>]&nbsp;&nbsp;&nbsp;'+
-						       '[<a href="#" class="copy-reportconfig-link" onclick="configReportUrl(\''+row.coding+'\')">配置地址</a>]';
+						       '[<a href="#" class="copy-reportconfig-link" onclick="configReportUrl(\''+row.coding+'\')">配置地址</a>]&nbsp;&nbsp;&nbsp;'+
+						       '[<a href="#" class="export-relativefile-link" onclick="viewFun(\''+row.coding+'\')">预览</a>]';
 					}
 	          	  }
 			]], 

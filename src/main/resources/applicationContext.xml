@@ -27,7 +27,7 @@
 		location="classpath*:/application.properties" />
 
 	<!-- 数据源配置, 使用DBCP数据库连接池 -->
-	<bean id="dataSourceA" class="org.apache.commons.dbcp.BasicDataSource"
+	<bean id="datasourceA" class="org.apache.commons.dbcp.BasicDataSource"
 		destroy-method="close">
 		<!-- Connection Info -->
 		<property name="driverClassName" value="${datasourceA.driverClassName}" />
@@ -56,11 +56,12 @@
 		<!-- 通过key-value的形式来关联数据源 -->
 		<property name="targetDataSources">
 			<map>
-				<entry value-ref="dataSourceA" key="dataSourceA"></entry>
-				<!-- <entry value-ref="dataSourceB" key="dataSourceB"></entry>  -->
+				<!--
+				<entry value-ref="datasourceA" key="datasourceA"></entry>
+				<entry value-ref="dataSourceB" key="dataSourceB"></entry>  -->
 			</map>
 		</property>
-		<property name="defaultTargetDataSource" ref="dataSourceA" />
+		<property name="defaultTargetDataSource" ref="datasourceA" />
 	</bean>
 
 	<!-- Hibernate4 SessionFactory -->

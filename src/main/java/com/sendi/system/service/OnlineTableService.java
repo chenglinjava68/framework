@@ -138,7 +138,9 @@ public class OnlineTableService extends CommonService {
 		}
 		
 		countsql += condition; 
-		sql += condition + " limit "+(Integer.parseInt(params.get("page"))-1) * Integer.parseInt(params.get("rows")) +","+params.get("rows");//分页查询
+		if(params.get("page")!=null){
+			sql += condition + " limit "+(Integer.parseInt(params.get("page"))-1) * Integer.parseInt(params.get("rows")) +","+params.get("rows");//分页查询
+		}
 		logger.info(sql);
 		int total = jdbcTemplate.queryForObject(countsql, Integer.class);
 		List<Map<String, Object>> datas = jdbcTemplate.queryForList(sql);

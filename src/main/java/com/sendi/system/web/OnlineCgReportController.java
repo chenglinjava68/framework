@@ -15,17 +15,17 @@ import com.sendi.system.service.OnlineCgReportService;
 import com.sendi.system.util.common.FreemarkerHelper;
 
 @Controller
-@RequestMapping("/dynamicReportController")
+@RequestMapping("/onlineCgReportController")
 public class OnlineCgReportController extends BaseController {
 	@Autowired
-	private OnlineCgReportService dynamicReportService;
+	private OnlineCgReportService onlineCgReportService;
 
 	@RequestMapping(params = "list")
 	public void list(HttpServletRequest request, HttpServletResponse response,String configId) {
 		try {
 
 			System.out.println("configId:"+configId);
-			Map<String, Object> configs = dynamicReportService.queryReportConfig(configId);
+			Map<String, Object> configs = onlineCgReportService.queryReportConfig(configId);
 			
 			String path = request.getContextPath();
 			configs.put("contextRootPath", request.getContextPath());
@@ -35,9 +35,10 @@ public class OnlineCgReportController extends BaseController {
 			String html = null;
 			FreemarkerHelper viewEngine = new FreemarkerHelper();
 			if(StringUtils.equals("Y", (String)((Map<String, Object>)configs.get("headers")).get("ischart"))){//需要生成chart报表，使用DynamicReportChart模板
-				html = viewEngine.parseTemplate("/com/sendi/znwg/web/dynamicReport/DynamicReportChart.ftl",configs);
+				/*html = viewEngine.parseTemplate("/com/sendi/system/web/DynamicReportChart.ftl",configs);*/
+				html = viewEngine.parseTemplate("/com/sendi/system/web/DynamicReport.ftl",configs);
 			}else{
-				html = viewEngine.parseTemplate("/com/sendi/znwg/web/dynamicReport/DynamicReport.ftl",configs);
+				html = viewEngine.parseTemplate("/com/sendi/system/web/DynamicReport.ftl",configs);
 			}
 			writeResponseText(html, response);
 		} catch (Exception e) {
@@ -63,7 +64,7 @@ public class OnlineCgReportController extends BaseController {
 			String rows, HttpServletRequest request,
 			HttpServletResponse response) {
 		try {
-			writeResponseText(dynamicReportService.dataQry(request), response);
+			writeResponseText(onlineCgReportService.dataQry(request), response);
 		} catch (Exception e) {
 			e.printStackTrace();
 			writeResponseText("{success:false,msg:'程序错误'}", response);
@@ -73,7 +74,7 @@ public class OnlineCgReportController extends BaseController {
 	@RequestMapping(params = "queryReportChart")
 	public void queryReportChart(HttpServletRequest request,HttpServletResponse response) {
 		try {
-			writeResponseText(dynamicReportService.queryReportChart(request), response);
+			writeResponseText(onlineCgReportService.queryReportChart(request), response);
 		} catch (Exception e) {
 			e.printStackTrace();
 			writeResponseText("{success:false,msg:'程序错误'}", response);

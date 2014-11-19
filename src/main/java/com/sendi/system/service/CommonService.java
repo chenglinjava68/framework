@@ -430,12 +430,10 @@ public class CommonService<T> {
 	 * @return
 	 */
 	public Page<T> getPageList(String hql, String start, String limit){
-		int allCounts = getPageTotalCount(hql);
-		
-		Query query = getSession().createQuery(hql);
-		query.setFirstResult(Integer.valueOf(start));
-		query.setMaxResults(Integer.valueOf(limit));
-		return new Page<T>(allCounts,query.list());
+		Integer starti = Integer.valueOf(start);
+		Integer limiti = Integer.valueOf(limit);
+		//改成调用下面int为参数的的方法，统一入口
+		return getPageList(hql,starti,limiti);
 		
 	}
 	
@@ -447,12 +445,12 @@ public class CommonService<T> {
 	 * @param isOffset
 	 * @return
 	 */
-	public Page<T> getPageList(String hql, Integer pageNo,Integer pageSize){
+	public Page<T> getPageList(String hql, Integer starti,Integer limiti){
 		int allCounts = getPageTotalCount(hql);
 		
 		Query query = getSession().createQuery(hql);
-		query.setFirstResult(pageSize * (pageNo - 1));
-		query.setMaxResults(pageSize);
+		query.setFirstResult(starti);
+		query.setMaxResults(limiti);
 		return new Page<T>(allCounts,query.list());
 		
 	}

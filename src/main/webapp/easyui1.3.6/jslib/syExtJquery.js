@@ -122,6 +122,15 @@ sy.readColumnTitles = function(id){
 			titlestr += columnOption.title+',';
 		}
 	});
+	if(fieldstr==''){
+		$.each(fields,function(_index,field){
+			var columnOption = $("#"+id).datagrid('getColumnOption',field);
+			if(!columnOption.hidden && !columnOption.checkbox){
+				fieldstr += columnOption.field+',';
+				titlestr += columnOption.title+',';
+			}
+		});
+	}
 	if(fieldstr.indexOf(',')!=-1){
 		fieldstr = fieldstr.substring(0,fieldstr.lastIndexOf(','));
 	}

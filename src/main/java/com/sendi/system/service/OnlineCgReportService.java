@@ -16,7 +16,6 @@ import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.sendi.system.util.DynamicReportConstant;
@@ -24,7 +23,7 @@ import com.sendi.system.util.DynamicReportQueryParamUtil;
 
 
 @Service
-public class OnlineCgReportService extends CommonService {
+public class OnlineCgReportService extends CommonService<Object> {
 	
 	@Autowired
 	private DicDataService dicDataService;
@@ -43,7 +42,7 @@ public class OnlineCgReportService extends CommonService {
 		String cgrheader_id=(String)head_map.get("ID");
 		
 		String sql2 = "select * from online_cgreport_item where CGRHEAD_ID='"+cgrheader_id+"' order by order_num asc ";
-		String sql3 = "select * from dctdata where dcttypeen in (select DICT_CODE from online_cgreport_item where CGRHEAD_ID='"+cgrheader_id+"' AND DICT_CODE !='')";
+		String sql3 = "select * from dicdata where dic_code in (select DICT_CODE from online_cgreport_item where CGRHEAD_ID='"+cgrheader_id+"' AND DICT_CODE !='')";
 		System.out.println("sql2:"+sql2);
 		List<Map<String, Object>> item_list = jdbcTemplate.queryForList(sql2);
 		dealDefaultValue(item_list);
@@ -144,10 +143,10 @@ public class OnlineCgReportService extends CommonService {
 		Map<String,Object> cgReportMap = queryReportConfig(configId);
 		
 		//step.2 获取该配置的查询SQL
-		Map configM = (Map) cgReportMap.get(DynamicReportConstant.MAIN);
+		Map<String, Object> configM = (Map<String,Object>) cgReportMap.get(DynamicReportConstant.MAIN);
 		String querySql = (String) configM.get(DynamicReportConstant.CONFIG_SQL);
 		List<Map<String,Object>> items = (List<Map<String, Object>>) cgReportMap.get(DynamicReportConstant.ITEMS);
-		Map queryparams =  new LinkedHashMap<String,Object>();
+		Map<String, Object> queryparams =  new LinkedHashMap<String,Object>();
 		for(Map<String,Object> item:items){
 			String isQuery = (String) item.get(DynamicReportConstant.ITEM_ISQUERY);
 			if(DynamicReportConstant.BOOL_TRUE.equalsIgnoreCase(isQuery)){
@@ -156,11 +155,12 @@ public class OnlineCgReportService extends CommonService {
 			}
 		}
 		
-		//String orderby=getOrderbySql(configId);
-		//String sql = getFullSql(querySql.toString(),queryparams,orderby);
-		String sql = getFullSql(querySql.toString(),queryparams);
-		String start = StringUtils.trimToEmpty(request.getParameter("start"));
-		String limit = StringUtils.trimToEmpty(request.getParameter("limit"));
+		String orderby=getOrderbySql(configId);
+		String sql = getFullSql(querySql.toString(),queryparams,orderby);
+		/*String start = StringUtils.trimToEmpty(request.getParameter("start"));
+		String limit = StringUtils.trimToEmpty(request.getParameter("limit"));*/
+		String start = (Integer.parseInt(request.getParameter("page"))-1) * Integer.parseInt(request.getParameter("rows"))+"";
+		String limit = request.getParameter("rows");
 		
 		logger.info(sql);
 		
@@ -176,10 +176,10 @@ public class OnlineCgReportService extends CommonService {
 		Map<String,Object> cgReportMap = queryReportConfig(configId);
 		
 		//step.2 获取该配置的查询SQL
-		Map configM = (Map) cgReportMap.get(DynamicReportConstant.MAIN);
+		Map<String, Object> configM = (Map<String,Object>) cgReportMap.get(DynamicReportConstant.MAIN);
 		String querySql = (String) configM.get(DynamicReportConstant.CONFIG_SQL);
 		List<Map<String,Object>> items = (List<Map<String, Object>>) cgReportMap.get(DynamicReportConstant.ITEMS);
-		Map queryparams =  new LinkedHashMap<String,Object>();
+		Map<String, Object> queryparams =  new LinkedHashMap<String,Object>();
 		for(Map<String,Object> item:items){
 			String isQuery = (String) item.get(DynamicReportConstant.ITEM_ISQUERY);
 			if(DynamicReportConstant.BOOL_TRUE.equalsIgnoreCase(isQuery)){
@@ -187,8 +187,8 @@ public class OnlineCgReportService extends CommonService {
 				DynamicReportQueryParamUtil.loadQueryParams(request, item, queryparams);
 			}
 		}
-
-		String sql = getFullSql(querySql.toString(),queryparams);
+		String orderby=getOrderbySql(configId);
+		String sql = getFullSql(querySql.toString(),queryparams,orderby);
 		
 		logger.info(sql);
 		
@@ -232,15 +232,15 @@ public class OnlineCgReportService extends CommonService {
 		String countSQL = "select count(*) from ("+sql+") t";
 		String dataSQL = sql + " limit "+(StringUtils.isBlank(start)?0:start)+","+(StringUtils.isBlank(limit)?15:limit) ;
 		List<Map<String,Object>> datasList = jdbcTemplate.queryForList(dataSQL);
-		HashMap dataMap = new HashMap();
-		dataMap.put("totalCount",jdbcTemplate.queryForObject(countSQL, Integer.class));
+		HashMap<String, Object> dataMap = new HashMap<String, Object>();
+		dataMap.put("total",jdbcTemplate.queryForObject(countSQL, Integer.class));
 		
 		//1处理字典
 		dealDic(datasList,items);
 		//2处理替换值
 		dealReplace(datasList,items);
 		
-		dataMap.put("datas",datasList);
+		dataMap.put("rows",datasList);
 		JSONObject jsons = JSONObject.fromObject(dataMap);
 		dataStr = jsons.toString();
 		return dataStr;
@@ -255,13 +255,13 @@ public class OnlineCgReportService extends CommonService {
 				continue;
 			}else{
 				List<Map<String, Object>> dicDatas = dicDataService.queryDic(dict_code);
-				for(Map r:result){
+				for(Map<String, Object> r:result){
 					String value = String.valueOf(r.get(bean.get(DynamicReportConstant.ITEM_FIELDNAME)));
-					for(Map m:dicDatas){
+					for(Map<String, Object> m:dicDatas){
 						String typecode = String.valueOf(m.get("dic_value"));
 						String typename = String.valueOf(m.get("dic_key"));
 						if(value.equalsIgnoreCase(typecode)){
-							r.put(bean.get(DynamicReportConstant.ITEM_FIELDNAME),typename);
+							r.put((String) bean.get(DynamicReportConstant.ITEM_FIELDNAME),typename);
 						}
 					}
 				}
@@ -283,10 +283,10 @@ public class OnlineCgReportService extends CommonService {
 					String[] items = g.split("_");
 					String v = items[0];//逻辑判断值
 					String txt = items[1];//要转换的文本
-					for(Map r:result){
+					for(Map<String,Object> r:result){
 						String value = String.valueOf(r.get(bean.get(DynamicReportConstant.ITEM_FIELDNAME)));
 						if(value.equalsIgnoreCase(v)){
-							r.put(bean.get(DynamicReportConstant.ITEM_FIELDNAME),txt);
+							r.put((String) bean.get(DynamicReportConstant.ITEM_FIELDNAME),txt);
 						}
 					}
 				}
@@ -310,10 +310,10 @@ public class OnlineCgReportService extends CommonService {
 		Map<String,Object> cgReportMap = queryReportConfig(configId);
 		
 		//step.2 获取该配置的查询SQL
-		Map configM = (Map) cgReportMap.get(DynamicReportConstant.MAIN);
+		Map<String, Object> configM = (Map<String,Object>) cgReportMap.get(DynamicReportConstant.MAIN);
 		String querySql = (String) configM.get(DynamicReportConstant.CONFIG_SQL);
 		List<Map<String,Object>> items = (List<Map<String, Object>>) cgReportMap.get(DynamicReportConstant.ITEMS);
-		Map queryparams =  new LinkedHashMap<String,Object>();
+		Map<String, Object> queryparams =  new LinkedHashMap<String,Object>();
 		for(Map<String,Object> item:items){
 			String isQuery = (String) item.get(DynamicReportConstant.ITEM_ISQUERY);
 			if(DynamicReportConstant.BOOL_TRUE.equalsIgnoreCase(isQuery)){
@@ -321,7 +321,8 @@ public class OnlineCgReportService extends CommonService {
 				DynamicReportQueryParamUtil.loadQueryParams(request, item, queryparams);
 			}
 		}
-		String sql = getFullSql(querySql.toString(),queryparams);
+		String orderby=getOrderbySql(configId);
+		String sql = getFullSql(querySql.toString(),queryparams,orderby);
 		
 		List<Map<String,Object>> datasList = jdbcTemplate.queryForList(sql);
 		//1处理字典
@@ -368,14 +369,14 @@ public class OnlineCgReportService extends CommonService {
 	 * @param params
 	 * @return
 	 */
-	private String getFullSql(String sql,Map params,String orderby){
+	private String getFullSql(String sql,Map<String, Object> params,String orderby){
 		StringBuilder sqlB =  new StringBuilder();
 		sqlB.append("SELECT t.* FROM ( ");
 		sqlB.append(sql+" ");
 		sqlB.append(") t ");
 		if (params.size() >= 1) {
 			sqlB.append("WHERE 1=1  ");
-			Iterator it = params.keySet().iterator();
+			Iterator<String> it = params.keySet().iterator();
 			while (it.hasNext()) {
 				String key = String.valueOf(it.next());
 				String value = String.valueOf(params.get(key));
@@ -388,8 +389,8 @@ public class OnlineCgReportService extends CommonService {
 		sqlB.append(orderby);
 		return sqlB.toString();
 	}
-	private String getFullSql(String sql,Map params){
+	/*private String getFullSql(String sql,Map params){
 		return getFullSql(sql,params,"");
-	}
+	}*/
 	
 }

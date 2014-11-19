@@ -1,5 +1,7 @@
 package com.sendi.system.web;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -11,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -170,6 +173,28 @@ public abstract class BaseController {
 		while (em.hasMoreElements()) {
 			String paramName = (String) em.nextElement();
 			String paramValue = request.getParameter(paramName);
+			// 形成键值对应的map
+			params.put(paramName, paramValue);
+		}
+		return params;
+	}
+	
+	/**
+	 * 封装request请求参数到Map里，解决get请求乱码问题
+	 * @param request
+	 * @return
+	 * @throws Exception 
+	 */
+	protected Map<String, String> paramsToMap(HttpServletRequest request,String encoding) throws Exception {
+		Map<String, String> params = new HashMap<String, String>();
+		// 得到枚举类型的参数名称，参数名称若有重复的只能得到第一个
+		Enumeration em = request.getParameterNames();
+		while (em.hasMoreElements()) {
+			String paramName = (String) em.nextElement();
+			String paramValue = request.getParameter(paramName);
+			if(!StringUtils.isEmpty(paramValue)){
+				paramValue = URLDecoder.decode(paramValue, encoding);
+			}
 			// 形成键值对应的map
 			params.put(paramName, paramValue);
 		}

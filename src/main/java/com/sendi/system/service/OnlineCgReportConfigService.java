@@ -146,7 +146,7 @@ public class OnlineCgReportConfigService extends CommonService<OnlineCgReportHea
 				bean.setFieldWidth(100);
 				bean.setIsShow("Y");
 				bean.setShowHref("");
-				bean.setQueryModel("Single");
+				bean.setQueryModel("single");
 				bean.setExpression("");
 				bean.setDctCode("");
 				bean.setIsQuery("Y");

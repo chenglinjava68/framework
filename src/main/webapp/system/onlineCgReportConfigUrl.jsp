@@ -15,7 +15,7 @@
 </head>
 <script type="text/javascript">
 	$(function() {
-		$("#configIdSpan").html("/dynamicReportController.do?list&configId=<%=configId%>");
+		$("#configIdSpan").html("/onlineCgReportController.do?list&configId=<%=configId%>");
 	});
 </script>
 <body class="easyui-layout">

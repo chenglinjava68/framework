@@ -1,5 +1,6 @@
 package com.sendi.system.web;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +18,7 @@ import com.sendi.system.constants.Globals;
 import com.sendi.system.service.DicDataService;
 import com.sendi.system.service.OnlineTableService;
 import com.sendi.system.util.Json;
+import com.sendi.system.util.PoiUtils;
 import com.sendi.system.util.common.FreemarkerHelper;
 
 /**
@@ -217,5 +219,34 @@ public class OnlineTableController extends BaseController{
 			List<Map<String, Object>> data = dicDataService.queryDic(dic_code);
 			
 			writeResponseText(toJSONArraytring(data), response);
+	}
+	
+	
+	@RequestMapping(params = "export")
+	public void export(HttpServletRequest request,HttpServletResponse response){
+		try {
+			Map<String, String> params = paramsToMap(request,"utf-8");
+			
+			//1、读配置数据
+			Map<String, Object> configs = onlineTableService.queryConfig(params.get(CONFIGID));
+			
+			String path = request.getContextPath();
+			configs.put("contextRootPath", request.getContextPath());
+			configs.put("fullpath", request.getScheme()+"://"+request.getServerName()+":"+Globals.Port+path);
+			
+			//2、组装sql语句进行查询
+			Page<Map<String, Object>> page = onlineTableService.queryAll(params, configs);
+			List<Map<String, Object>> list = page.getRows();
+			String titles = params.get("titles");
+			String fields = params.get("fields");
+			PoiUtils.createAndExportExcel(response,list,titles.split(","),fields.split(","));
+		} catch (Exception e) {
+			try {
+				response.sendError(500, "File export fail!");
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			e.printStackTrace();
+		}
 	}
 }
